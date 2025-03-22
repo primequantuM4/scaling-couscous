@@ -13,13 +13,13 @@ class TextfieldComponent implements InteractableComponent {
 
   @override
   void clear() {
-    stdout.write("\x1B[2K"); // Clear the entire line
-    stdout.write("\r"); // Move cursor to the beginning of the line
+    stdout.write("\x1B[2K");
+    stdout.write("\r");
   }
 
   @override
   void draw() {
-    stdout.write("\r"); // Move cursor to the start of the line
+    stdout.write("\r");
     stdout.write(render());
   }
 
@@ -45,13 +45,12 @@ void main() {
   var textField = TextfieldComponent();
   textField.focused = true;
 
-  stdin.echoMode = false; // Disable automatic input display
-  stdin.lineMode = false; // Capture single keypresses
+  stdin.echoMode = false;
+  stdin.lineMode = false;
   stdin.listen((List<int> event) {
     String key = utf8.decode(event);
 
     if (key == '\x1B') {
-      // Escape key to exit
       stdin.echoMode = true;
       stdin.lineMode = true;
       exit(0);
