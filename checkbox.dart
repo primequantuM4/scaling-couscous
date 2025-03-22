@@ -11,6 +11,7 @@ class Checkbox extends InputHandler implements InteractableComponent {
   Checkbox({required this.items});
   @override
   void clear() {
+    stdout.write("\x1B[${items.length}A");
     for (var i = 0; i < items.length; i++) {
       stdout.write("\x1B[1B\x1B[2K");
     }
