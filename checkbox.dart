@@ -16,6 +16,7 @@ class Checkbox extends InputHandler implements InteractableComponent {
       stdout.write("\x1B[1B\x1B[2K");
     }
     stdout.write("\x1B[${items.length - 1}A");
+    stdout.write("\r");
   }
 
   @override
@@ -43,7 +44,10 @@ class Checkbox extends InputHandler implements InteractableComponent {
 
     for (int i = 0; i < items.length; i++) {
       if (_selected.contains(i)) {
-        modifiedItems.add('[X]${items[i]}');
+        if (_index == i)
+          modifiedItems.add('[.X.]${items[i]}');
+        else
+          modifiedItems.add('[X]${items[i]}');
       } else {
         if (_index == i)
           modifiedItems.add('[.]${items[i]}');
