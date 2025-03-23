@@ -1,7 +1,8 @@
 import 'dart:io';
+import 'colors.dart';
 import 'interactable_component.dart';
 import 'input_handler.dart';
-import 'main.dart';
+import 'text_component_style.dart';
 
 class TextfieldComponent extends InputHandler implements InteractableComponent {
   String value = "";
@@ -78,19 +79,4 @@ class TextfieldComponent extends InputHandler implements InteractableComponent {
     clear();
     draw();
   }
-}
-
-void main() {
-  final textField = TextfieldComponent(
-    placeHolder: 'Charizard',
-    textStyle: TextComponentStyle().foreground(Colors.green),
-    onSubmitted: (submittedValue) {
-      print("You have selected the pokemon [$submittedValue]:");
-      print("choose your favorite attack");
-      print("[]Thunderstrike []Thunderbolt [X]Tackle");
-    },
-  );
-
-  print("What's your favorite pokemon?");
-  textField.focused = true;
 }
