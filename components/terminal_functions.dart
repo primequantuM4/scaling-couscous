@@ -1,10 +1,11 @@
 import 'dart:io';
 
-import 'colors.dart';
+import 'package:example/components/colors.dart';
+import 'package:example/components/text_component_style.dart';
+import 'package:example/components/text_field_component.dart';
+
 import 'input_handler.dart';
 import 'input_manager.dart';
-import 'text_component_style.dart';
-import 'text_field_component.dart';
 
 class Terminal {
   static final _inputHandler = _TerminalInputHandler();
@@ -14,7 +15,6 @@ class Terminal {
     if (!stdout.hasTerminal) {
       throw UnsupportedError("Terminal is not available");
     }
-
     return stdout.terminalColumns;
   }
 
@@ -41,6 +41,27 @@ class Terminal {
     }
     _inputManager.stop();
     stdout.write('\x1B[?1049l');
+  }
+
+  static void write(String data) {
+    stdout.write(data);
+  }
+
+  static void writeLn(String data) {
+    stdout.write('$data\n');
+  }
+
+  static void displayCentered(String data) {
+    final width = Terminal.getWidth();
+    final height = Terminal.getHeight();
+    write('\x1B[${height ~/ 2};${width ~/ 2}H');
+    write(data);
+  }
+
+  static Future<void> clearAfterDelay(int seconds) async {
+    await Future.delayed(Duration(seconds: seconds));
+    stdout.write('\x1B[2J');
+    stdout.write('\x1B[H');
   }
 
   static void startListening() {

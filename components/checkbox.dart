@@ -10,14 +10,16 @@ class Checkbox extends InputHandler implements InteractableComponent {
   final Set<int> _selected = {};
   final TextComponentStyle onSelect;
   final TextComponentStyle textStyle;
+  final Function(List<String>)? onSubmitted;
   int _index = 0;
   bool _listening = false;
 
-  Checkbox({
-    required this.items,
-    TextComponentStyle? onSelect,
-    TextComponentStyle? textStyle,
-  })  : onSelect = onSelect ?? TextComponentStyle(),
+  Checkbox(
+      {required this.items,
+      TextComponentStyle? onSelect,
+      TextComponentStyle? textStyle,
+      this.onSubmitted})
+      : onSelect = onSelect ?? TextComponentStyle(),
         textStyle = textStyle ?? TextComponentStyle();
 
   set listening(bool value) {
@@ -39,7 +41,7 @@ class Checkbox extends InputHandler implements InteractableComponent {
     for (var i = 0; i < items.length; i++) {
       stdout.write("\x1B[1B\x1B[2K");
     }
-    stdout.write("\x1B[${items.length - 1}A");
+    if (items.length > 1) stdout.write("\x1B[${items.length - 1}A");
     stdout.write("\r");
   }
 
@@ -56,6 +58,14 @@ class Checkbox extends InputHandler implements InteractableComponent {
       listening = false;
       clear();
       draw();
+      stdout.write('\n');
+      final List<String> selectedList = [];
+      for (int i = 0; i < items.length; i++) {
+        if (_selected.contains(i)) {
+          selectedList.add(items[i]);
+        }
+      }
+      onSubmitted?.call(selectedList);
       return;
     }
 
@@ -82,9 +92,8 @@ class Checkbox extends InputHandler implements InteractableComponent {
     for (int i = 0; i < items.length; i++) {
       if (_selected.contains(i)) {
         final styledItem = onSelect.render(items[i]);
-        modifiedItems.add(_index == i && _listening
-            ? '[.X.]${styledItem}'
-            : '[X]${styledItem}');
+        modifiedItems.add(
+            _index == i && _listening ? '[.X.]$styledItem' : '[X]$styledItem');
       } else {
         final styledItem = textStyle.render(items[i]);
         modifiedItems.add(
