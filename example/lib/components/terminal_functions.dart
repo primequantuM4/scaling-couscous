@@ -76,10 +76,10 @@ class _TerminalInputHandler extends InputHandler {
   void handleInput(String input) {
     if (_commandBuffer.isEmpty) return;
 
-    if (input == '\r') {
+    if (input == '\r' || input == '\n') {
       _executeCommand();
       _commandBuffer.clear();
-    } else if (input == '\b') {
+    } else if (input == '\b' || input == '\x7F') {
       String currentVal = _commandBuffer.toString();
       currentVal = currentVal.substring(0, currentVal.length - 1);
 
@@ -98,6 +98,7 @@ class _TerminalInputHandler extends InputHandler {
   }
 }
 
+// testing
 void main() {
   try {
     print("Terminal Width: ${Terminal.getWidth()}");

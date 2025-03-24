@@ -22,7 +22,7 @@ class TextComponentStyle {
   }
 
   TextComponentStyle background(AnsiColorType color) {
-    this.bgColor = color;
+    bgColor = color;
     return this;
   }
 

@@ -43,7 +43,7 @@ class TextfieldComponent extends InputHandler implements InteractableComponent {
 
   @override
   String render() {
-    final styledValue;
+    final String styledValue;
 
     if (value.isEmpty && placeHolder != null && focused) {
       final TextComponentStyle colorStyle =
@@ -60,7 +60,7 @@ class TextfieldComponent extends InputHandler implements InteractableComponent {
   void handleInput(String input) {
     if (!focused) return;
 
-    if (input == '\r') {
+    if (input == '\r' || input == '\n') {
       final submittedValue = value;
       focused = false;
       clear();
@@ -68,7 +68,7 @@ class TextfieldComponent extends InputHandler implements InteractableComponent {
       value = "";
       stdout.write('\n');
       onSubmitted?.call(submittedValue);
-    } else if (input == '\b') {
+    } else if (input == '\b' || input == '\x7F') {
       if (value.isNotEmpty) {
         value = value.substring(0, value.length - 1);
       }

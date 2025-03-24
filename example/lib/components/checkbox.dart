@@ -9,6 +9,7 @@ class Checkbox extends InputHandler implements InteractableComponent {
   final List<String> items;
   final Set<int> _selected = {};
   final TextComponentStyle onSelect;
+  final TextComponentStyle onHover;
   final TextComponentStyle textStyle;
   final Function(List<String>)? onSubmitted;
   int _index = 0;
@@ -18,8 +19,10 @@ class Checkbox extends InputHandler implements InteractableComponent {
       {required this.items,
       TextComponentStyle? onSelect,
       TextComponentStyle? textStyle,
+      TextComponentStyle? onHover,
       this.onSubmitted})
       : onSelect = onSelect ?? TextComponentStyle(),
+        onHover = onHover ?? TextComponentStyle(),
         textStyle = textStyle ?? TextComponentStyle();
 
   set listening(bool value) {
@@ -54,7 +57,7 @@ class Checkbox extends InputHandler implements InteractableComponent {
   void handleInput(String input) {
     if (!_listening) return;
 
-    if (input == '\r') {
+    if (input == '\r' || input == '\n') {
       listening = false;
       clear();
       draw();
@@ -90,6 +93,7 @@ class Checkbox extends InputHandler implements InteractableComponent {
     final List<String> modifiedItems = [];
 
     for (int i = 0; i < items.length; i++) {
+      final hoveredItem = onHover.render(items[i]);
       if (_selected.contains(i)) {
         final styledItem = onSelect.render(items[i]);
         modifiedItems.add(
@@ -97,7 +101,7 @@ class Checkbox extends InputHandler implements InteractableComponent {
       } else {
         final styledItem = textStyle.render(items[i]);
         modifiedItems.add(
-            _index == i && _listening ? '[.]$styledItem' : '[]$styledItem');
+            _index == i && _listening ? '[.]$hoveredItem' : '[]$styledItem');
       }
     }
 
@@ -105,6 +109,7 @@ class Checkbox extends InputHandler implements InteractableComponent {
   }
 }
 
+// testing
 void main() {
   Checkbox checkbox = Checkbox(
       items: ['Option 1', 'Option 2', 'Option 3'],

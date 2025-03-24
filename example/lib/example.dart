@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:example/components/checkbox.dart';
+import 'package:example/components/spinner.dart';
 import 'package:example/pokemon.dart';
 import 'package:example/pokemon_api_service.dart';
 import 'package:example/style_helper.dart';
@@ -26,7 +27,6 @@ class PokemonTUI {
         .background(ColorRGB(30, 100, 196))
         .paddingRight(2)
         .paddingLeft(2);
-
     Terminal.displayCentered(style.render('POKÉMON'));
     await Terminal.clearAfterDelay(_clearScreenDelaySeconds);
   }
@@ -59,7 +59,8 @@ class PokemonTUI {
 
     for (int i = 0; i < types.length; i++) {
       Terminal.write(StyleHelper.typeStyle(types[i]).render(types[i]));
-      Terminal.write('   ');
+      String dat = '          ';
+      Terminal.write(dat);
       if ((i + 1) % _typeDisplayColumns == 0) Terminal.writeLn('\n');
     }
     Terminal.writeLn('');
@@ -79,7 +80,10 @@ class PokemonTUI {
 
   Future<void> _handlePokemonInput(String input) async {
     try {
+      final spinner = Spinner(color: ColorRGB(255, 255, 255));
+      spinner.start(message: "Fetching Pokemon...");
       final pokemon = await PokemonApiService.fetchPokemon(input);
+      spinner.stop(message: '');
       _displayPokemonDetails(pokemon);
       _promptForMoves(pokemon.moves);
     } catch (e) {
@@ -127,6 +131,7 @@ class PokemonTUI {
       items: moves,
       onSubmitted: _displaySelectedMoves,
       onSelect: StyleHelper.randomColoredStyle(),
+      onHover: StyleHelper.randomColoredStyle(),
     );
     checkbox.listening = true;
   }
@@ -143,4 +148,3 @@ class PokemonTUI {
 }
 
 void main() => PokemonTUI().start();
-
