@@ -114,10 +114,19 @@ void main() {
   Checkbox checkbox = Checkbox(
       items: ['Option 1', 'Option 2', 'Option 3'],
       textStyle: TextComponentStyle().bold().italic().foreground(Colors.yellow),
+      onSubmitted: (submittedValues) {
+        print("Chosen values are: $submittedValues");
+      },
+      onHover: TextComponentStyle()
+          .italic()
+          .bold()
+          .foreground(Colors.yellow)
+          .background(ColorRGB(255, 0, 0)),
       onSelect: TextComponentStyle()
           .italic()
           .bold()
           .foreground(Colors.yellow)
           .background(ColorRGB(255, 140, 0)));
+
   checkbox.listening = true;
 }

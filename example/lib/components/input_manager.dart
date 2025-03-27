@@ -8,6 +8,7 @@ class InputManager {
   final List<InputHandler> _activeHandlers = [];
   InputHandler? _currentHandler;
   bool _inCommandMode = false;
+  bool _isInputPaused = false;
   final StringBuffer _commandBuffer = StringBuffer();
   StreamSubscription<List<int>>? _stdinSubscription;
 
@@ -39,11 +40,21 @@ class InputManager {
     _stdinSubscription?.cancel();
   }
 
+  void pauseInput() {
+    _isInputPaused = true;
+  }
+
+  void resumeInput() {
+    _isInputPaused = false;
+  }
+
   void _updateCurrentHandler() {
     _currentHandler = _activeHandlers.isNotEmpty ? _activeHandlers.last : null;
   }
 
   void _handleInput(List<int> data) {
+    if (_isInputPaused) return;
+
     final input = utf8.decode(data);
 
     if (_inCommandMode) {
@@ -89,4 +100,3 @@ class InputManager {
     _commandBuffer.clear();
   }
 }
-

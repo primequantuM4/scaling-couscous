@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:example/example.dart';
-import 'package:example/pokemon.dart';
 import 'package:http/http.dart' as http;
+
+import 'pokemon.dart';
 
 const _apiBaseUrl = 'https://pokeapi.co/api/v2/pokemon';
 const _maxMoves = 8;

@@ -37,8 +37,8 @@ class ColorRGB implements AnsiColorType {
   const ColorRGB(this.r, this.g, this.b);
 
   @override
-  String get fg => '38;2;$r;$g;${b}';
+  String get fg => '38;2;$r;$g;$b';
 
   @override
-  String get bg => '48;2;$r;$g;${b}';
+  String get bg => '48;2;$r;$g;$b';
 }

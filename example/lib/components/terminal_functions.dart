@@ -35,6 +35,14 @@ class Terminal {
     stdout.write('\x1B[H');
   }
 
+  static void pauseInput() {
+    _inputManager.pauseInput();
+  }
+
+  static void resumeInput() {
+    _inputManager.resumeInput();
+  }
+
   static void exitFullscreen() {
     if (!stdout.hasTerminal) {
       throw UnsupportedError("Terminal is not available.");

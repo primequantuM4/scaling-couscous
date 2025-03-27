@@ -2,13 +2,14 @@ import 'dart:async';
 
 import 'package:example/components/checkbox.dart';
 import 'package:example/components/spinner.dart';
-import 'package:example/pokemon.dart';
-import 'package:example/pokemon_api_service.dart';
-import 'package:example/style_helper.dart';
 import 'package:example/components/colors.dart';
 import 'package:example/components/terminal_functions.dart';
 import 'package:example/components/text_component_style.dart';
 import 'package:example/components/text_field_component.dart';
+
+import 'pokemon.dart';
+import 'pokemon_api_service.dart';
+import 'style_helper.dart';
 
 const _typeDisplayColumns = 3;
 const _clearScreenDelaySeconds = 2;
@@ -22,6 +23,7 @@ class PokemonTUI {
   }
 
   Future<void> _showWelcomeScreen() async {
+    Terminal.pauseInput();
     final style = TextComponentStyle()
         .foreground(ColorRGB(255, 203, 5))
         .background(ColorRGB(30, 100, 196))
@@ -29,6 +31,7 @@ class PokemonTUI {
         .paddingLeft(2);
     Terminal.displayCentered(style.render('POKÉMON'));
     await Terminal.clearAfterDelay(_clearScreenDelaySeconds);
+    Terminal.resumeInput();
   }
 
   void _displayTypeChart() {
@@ -79,14 +82,15 @@ class PokemonTUI {
   }
 
   Future<void> _handlePokemonInput(String input) async {
+    final spinner = Spinner(color: ColorRGB(255, 255, 255));
     try {
-      final spinner = Spinner(color: ColorRGB(255, 255, 255));
       spinner.start(message: "Fetching Pokemon...");
       final pokemon = await PokemonApiService.fetchPokemon(input);
       spinner.stop(message: '');
       _displayPokemonDetails(pokemon);
       _promptForMoves(pokemon.moves);
     } catch (e) {
+      spinner.stop(message: '');
       Terminal.writeLn('$e Press :q<Enter> to exit');
     }
   }
