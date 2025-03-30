@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'colors.dart';
 import 'interactable_component.dart';
 import 'input_handler.dart';
 import 'text_component_style.dart';
@@ -78,9 +77,10 @@ class Checkbox extends InputHandler implements InteractableComponent {
       } else {
         _selected.add(_index);
       }
-    } else if (input == 'k' && _index > 0) {
+    } else if ((input == 'k' || input == '\x1B[A') && _index > 0) {
       _index--;
-    } else if (input == 'j' && _index < items.length - 1) {
+    } else if ((input == 'j' || input == '\x1B[B') &&
+        _index < items.length - 1) {
       _index++;
     }
 
@@ -111,22 +111,13 @@ class Checkbox extends InputHandler implements InteractableComponent {
 
 // testing
 void main() {
+  stdout.write('\x1B[?1049h');
   Checkbox checkbox = Checkbox(
-      items: ['Option 1', 'Option 2', 'Option 3'],
-      textStyle: TextComponentStyle().bold().italic().foreground(Colors.yellow),
-      onSubmitted: (submittedValues) {
-        print("Chosen values are: $submittedValues");
-      },
-      onHover: TextComponentStyle()
-          .italic()
-          .bold()
-          .foreground(Colors.yellow)
-          .background(ColorRGB(255, 0, 0)),
-      onSelect: TextComponentStyle()
-          .italic()
-          .bold()
-          .foreground(Colors.yellow)
-          .background(ColorRGB(255, 140, 0)));
+    items: ['Option 1', 'Option 2', 'Option 3'],
+    onSubmitted: (submittedValues) {
+      print("Chosen values are: $submittedValues");
+    },
+  );
 
   checkbox.listening = true;
 }
