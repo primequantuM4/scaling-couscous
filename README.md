@@ -2,10 +2,10 @@
 
 ## Project Overview
 
-The Dart TUI (Text User Interface) Framework is designed to help developers create interactive and customizable terminal-based user interfaces using Dart. It provides components such as text fields, checkboxes, and buttons, along with utilities to render text in various styles, colors, and positions. This framework is ideal for building console-based applications that need dynamic input handling, customizable styles, and interactive elements.
+This project is a minimal TUI framework Framework designed as a sample project for Dart - GSoC 2025. It provides components such as text fields, checkboxes, and spinners, along with utilities to render text in various styles, colors.
 
 ### Key Features:
-- **Interactive Components**: Includes components like `Checkbox`, `TextField`, and more.
+- **Interactive Components**: Includes components like `Checkbox`, `TextFieldComponent`.
 - **Customizable Styles**: Allows you to customize text appearance with foreground and background colors, padding, and more.
 - **Terminal Control**: Fullscreen mode, clearing the screen after delays, and centered text display.
 - **Event Handling**: Supports keyboard input handling and custom event actions for interactive components.
