@@ -60,6 +60,10 @@ class TextfieldComponent extends InputHandler implements InteractableComponent {
   void handleInput(String input) {
     if (!focused) return;
 
+    Set<String> arrowKeys = {'\x1B[A', '\x1B[B', '\x1B[C', '\x1B[D'};
+
+    if (arrowKeys.contains(input)) return;
+
     if (input == '\r' || input == '\n') {
       final submittedValue = value;
       focused = false;
