@@ -1,5 +1,9 @@
 import 'dart:io';
 import 'dart:async';
+import 'dart:ffi';
+
+import 'package:ffi/ffi.dart';
+import 'package:win32/win32.dart';
 
 enum MouseEventType { click, release, hover }
 
@@ -22,20 +26,42 @@ class MouseHandler {
   Function(MouseEvent)? onEvent;
 
   void start() {
-    stdout.write('\x1B[?1006h\x1B[?1003h');
-    stdout.flush();
+    stdin
+      ..echoMode = false
+      ..lineMode = false;
 
+    stdout.write('\x1B[?1006h\x1B[?1003h');
+
+    if (Platform.isWindows) {
+      _enableWindowsAnsi();
+    }
     stdin.listen(_onData);
   }
 
   void stop() {
+    if (Platform.isWindows) {
+      _restoreWindowsConsoleMode();
+    }
     stdout.write('\x1B[?1006l\x1B[?1003l');
-    stdout.flush();
   }
 
   void _onData(List<int> data) {
     _buffer += String.fromCharCodes(data);
     _processBuffer();
+  }
+
+  void _enableWindowsAnsi() {
+    final handle = GetStdHandle(STD_HANDLE.STD_INPUT_HANDLE);
+    var mode = calloc<DWORD>();
+
+    GetConsoleMode(handle, mode);
+    SetConsoleMode(
+        handle,
+        mode.value |
+            CONSOLE_MODE.ENABLE_VIRTUAL_TERMINAL_INPUT |
+            CONSOLE_MODE.ENABLE_MOUSE_INPUT |
+            CONSOLE_MODE.ENABLE_WINDOW_INPUT);
+    calloc.free(mode);
   }
 
   void _processBuffer() {
@@ -67,7 +93,7 @@ class MouseHandler {
       if (parts.length != 3) return;
 
       int cb = int.parse(parts[0]);
-      int x = int.parse(parts[1]) - 1; // Convert to 0-based
+      int x = int.parse(parts[1]) - 1;
       int y = int.parse(parts[2]) - 1;
       bool isRelease = sequence.endsWith('m');
       bool isMotion = (cb & 0x20) != 0;
@@ -86,11 +112,26 @@ class MouseHandler {
       print('Error parsing mouse event: $e');
     }
   }
+
+  void _restoreWindowsConsoleMode() {
+    final handle = GetStdHandle(STD_HANDLE.STD_INPUT_HANDLE);
+    var mode = calloc<DWORD>();
+
+    GetConsoleMode(handle, mode);
+    SetConsoleMode(
+        handle,
+        mode.value &
+            ~(CONSOLE_MODE.ENABLE_VIRTUAL_TERMINAL_INPUT |
+                CONSOLE_MODE.ENABLE_MOUSE_INPUT |
+                CONSOLE_MODE.ENABLE_WINDOW_INPUT));
+
+    calloc.free(mode);
+  }
 }
 
 void main() async {
   final mouseHandler = MouseHandler();
-  
+
   mouseHandler.onEvent = (event) {
     print('Mouse event: $event');
   };
