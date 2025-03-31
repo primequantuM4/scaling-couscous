@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:example/components/mouse_event.dart';
+
 import 'interactable_component.dart';
 import 'input_handler.dart';
 import 'text_component_style.dart';
@@ -12,6 +14,8 @@ class Checkbox extends InputHandler implements InteractableComponent {
   final TextComponentStyle textStyle;
   final Function(List<String>)? onSubmitted;
   int _index = 0;
+  int _hovered = -1;
+  int _posY = -1;
   bool _listening = false;
 
   Checkbox(
@@ -22,12 +26,48 @@ class Checkbox extends InputHandler implements InteractableComponent {
       this.onSubmitted})
       : onSelect = onSelect ?? TextComponentStyle(),
         onHover = onHover ?? TextComponentStyle(),
-        textStyle = textStyle ?? TextComponentStyle();
+        textStyle = textStyle ?? TextComponentStyle() {
+    if (onHover != null) {
+      onMouseEvent = _handleMouseEvent;
+    }
+  }
+
+  _handleMouseEvent(MouseEvent event) {
+    final newHovered = event.y - _posY;
+    if (newHovered >= 0 &&
+        newHovered < items.length &&
+        items[newHovered].length >= event.x) {
+      if (_hovered != newHovered) {
+        _hovered = newHovered;
+        _index = _hovered;
+        clear();
+        draw();
+      }
+      if (event.type == MouseEventType.click && event.button == 0) {
+        if (_selected.contains(newHovered)) {
+          _selected.remove(newHovered);
+        } else {
+          _selected.add(newHovered);
+        }
+        clear();
+        draw();
+      }
+    } else {
+      if (_hovered != -1) {
+        _hovered = -1;
+        clear();
+        draw();
+      }
+    }
+  }
 
   set listening(bool value) {
     if (_listening == value) return;
     _listening = value;
     if (_listening) {
+      getCursorPosition((x, y) {
+        _posY = y;
+      });
       startListening();
       draw();
     } else {
@@ -100,8 +140,9 @@ class Checkbox extends InputHandler implements InteractableComponent {
             _index == i && _listening ? '[.X.]$styledItem' : '[X]$styledItem');
       } else {
         final styledItem = textStyle.render(items[i]);
-        modifiedItems.add(
-            _index == i && _listening ? '[.]$hoveredItem' : '[]$styledItem');
+        modifiedItems.add((_index == i || _hovered == i) && _listening
+            ? '[.]$hoveredItem'
+            : '[]$styledItem');
       }
     }
 
