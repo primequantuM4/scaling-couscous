@@ -1,130 +1,104 @@
-// mouse_handler.dart
 import 'dart:io';
-import 'input_handler.dart';
-import 'input_manager.dart';
+import 'dart:async';
+
+enum MouseEventType { click, release, hover }
 
 class MouseEvent {
+  final MouseEventType type;
   final int x;
   final int y;
-  final MouseButton button;
-  final bool pressed;
+  final int button;
 
-  MouseEvent(this.x, this.y, this.button, this.pressed);
+  MouseEvent(this.type, this.x, this.y, this.button);
 
   @override
-  String toString() =>
-      'MouseEvent(x: $x, y: $y, button: $button, pressed: $pressed)';
+  String toString() {
+    return 'MouseEvent{type: $type, x: $x, y: $y, button: $button}';
+  }
 }
 
-enum MouseButton { left, middle, right, none, wheelUp, wheelDown }
+class MouseHandler {
+  String _buffer = '';
+  Function(MouseEvent)? onEvent;
 
-class MouseHandler implements InputHandler {
-  final InputManager _inputManager = InputManager();
-  final void Function(MouseEvent)? onMouseEvent;
-  bool _isListening = false;
+  void start() {
+    stdout.write('\x1B[?1006h\x1B[?1003h');
+    stdout.flush();
 
-  MouseHandler({this.onMouseEvent});
-
-  void _startListening() {
-    if (_isListening) return;
-    _enableMouseReporting();
-    _inputManager.registerHandler(this);
-    _isListening = true;
+    stdin.listen(_onData);
   }
 
-  void _stopListening() {
-    if (!_isListening) return;
-    _disableMouseReporting();
-    _inputManager.unregisterHandler(this);
-    _isListening = true;
+  void stop() {
+    stdout.write('\x1B[?1006l\x1B[?1003l');
+    stdout.flush();
   }
 
-  @override
-  void handleInput(String input, {String someOtherStuff = ""}) {
-    if (input.startsWith('\x1B[<')) {
-      _parseXTermMouse(input);
-    } else if (input.startsWith('\x1B[M')) {
-      _parseLegacyMouse(input);
+  void _onData(List<int> data) {
+    _buffer += String.fromCharCodes(data);
+    _processBuffer();
+  }
+
+  void _processBuffer() {
+    while (true) {
+      int start = _buffer.indexOf('\x1B[<');
+      if (start == -1) break;
+
+      int end = _buffer.indexOf('M', start);
+      if (end == -1) {
+        end = _buffer.indexOf('m', start);
+        if (end == -1) break;
+      }
+
+      String sequence = _buffer.substring(start, end + 1);
+      _buffer = _buffer.substring(end + 1);
+      _parseMouseEvent(sequence);
+    }
+
+    if (_buffer.contains('q')) {
+      stop();
+      exit(0);
     }
   }
 
-  void _parseXTermMouse(String input) {
+  void _parseMouseEvent(String sequence) {
     try {
-      final parts = input.substring(3).split(';');
-      final code = int.parse(parts[0]);
-      final x = int.parse(parts[1]) - 1;
-      final y = int.parse(parts[2].substring(0, parts[2].length - 1)) - 1;
+      String data = sequence.substring(3, sequence.length - 1);
+      List<String> parts = data.split(';');
+      if (parts.length != 3) return;
 
-      final button = switch (code & 0x23) {
-        0 => MouseButton.left,
-        1 => MouseButton.middle,
-        2 => MouseButton.right,
-        64 => MouseButton.wheelUp,
-        65 => MouseButton.wheelDown,
-        _ => MouseButton.none,
-      };
+      int cb = int.parse(parts[0]);
+      int x = int.parse(parts[1]) - 1; // Convert to 0-based
+      int y = int.parse(parts[2]) - 1;
+      bool isRelease = sequence.endsWith('m');
+      bool isMotion = (cb & 0x20) != 0;
 
-      final pressed = (code & 0x20) == 0;
-      onMouseEvent?.call(MouseEvent(x, y, button, pressed));
+      MouseEventType type = MouseEventType.click;
+      if (isRelease) {
+        type = MouseEventType.release;
+      } else if (isMotion) {
+        type = MouseEventType.hover;
+      }
+
+      int button = cb & ~0x20;
+
+      onEvent?.call(MouseEvent(type, x, y, button));
     } catch (e) {
       print('Error parsing mouse event: $e');
     }
   }
-
-  void _parseLegacyMouse(String input) {
-    try {
-      final data = input.codeUnits;
-      final buttonCode = data[3] - 32;
-      final x = data[4] - 33;
-      final y = data[5] - 33;
-
-      final button = switch (buttonCode & 0x23) {
-        0 => MouseButton.left,
-        1 => MouseButton.middle,
-        2 => MouseButton.right,
-        64 => MouseButton.wheelUp,
-        65 => MouseButton.wheelDown,
-        _ => MouseButton.none,
-      };
-
-      final pressed = (buttonCode & 0x20) == 0;
-      onMouseEvent?.call(MouseEvent(x, y, button, pressed));
-    } catch (e) {
-      print('Error parsing legacy mouse event: $e');
-    }
-  }
-
-  void _enableMouseReporting() {
-    stdout.write(Platform.isWindows
-            ? '\x1B[?1003h\x1B[?1006h' // Enable Windows mouse tracking
-            : '\x1B[?1000h\x1B[?1006h' // Enable XTerm mouse tracking
-        );
-  }
-
-  void _disableMouseReporting() {
-    stdout.write(Platform.isWindows
-        ? '\x1B[?1003l\x1B[?1006l'
-        : '\x1B[?1000l\x1B[?1006l');
-  }
-
-  @override
-  void startListening() => _startListening();
-
-  @override
-  void stopListening() => _stopListening();
 }
 
-void main() {
-  print("Listening....");
-  final mouseHandler = MouseHandler(onMouseEvent: (event) {
+void main() async {
+  final mouseHandler = MouseHandler();
+  
+  mouseHandler.onEvent = (event) {
     print('Mouse event: $event');
-  });
+  };
 
-  // Start listening for mouse events
-  mouseHandler.startListening();
+  mouseHandler.start();
 
-  // Keep the app running
-  while (true) {
-    sleep(Duration(milliseconds: 100));
-  }
+  print('Mouse TUI Test (press q to quit)');
+  print('Click and move the mouse to test...');
+
+  await Completer<void>().future;
 }
