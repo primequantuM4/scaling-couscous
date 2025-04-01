@@ -149,16 +149,3 @@ class Checkbox extends InputHandler implements InteractableComponent {
     return modifiedItems.join('\n');
   }
 }
-
-// testing
-void main() {
-  stdout.write('\x1B[?1049h');
-  Checkbox checkbox = Checkbox(
-    items: ['Option 1', 'Option 2', 'Option 3'],
-    onSubmitted: (submittedValues) {
-      print("Chosen values are: $submittedValues");
-    },
-  );
-
-  checkbox.listening = true;
-}

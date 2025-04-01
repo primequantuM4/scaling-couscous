@@ -1,11 +1,6 @@
 import 'dart:async';
 
-import 'package:example/components/checkbox.dart';
-import 'package:example/components/spinner.dart';
-import 'package:example/components/colors.dart';
-import 'package:example/components/terminal_functions.dart';
-import 'package:example/components/text_component_style.dart';
-import 'package:example/components/text_field_component.dart';
+import 'package:example/tui.dart';
 
 import 'pokemon.dart';
 import 'pokemon_api_service.dart';
