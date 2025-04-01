@@ -18,6 +18,8 @@ class Checkbox extends InputHandler implements InteractableComponent {
   int _posY = -1;
   bool _listening = false;
 
+  final int _checkBoxLength = 5;
+
   Checkbox(
       {required this.items,
       TextComponentStyle? onSelect,
@@ -36,7 +38,7 @@ class Checkbox extends InputHandler implements InteractableComponent {
     final newHovered = event.y - _posY;
     if (newHovered >= 0 &&
         newHovered < items.length &&
-        items[newHovered].length >= event.x) {
+        items[newHovered].length + _checkBoxLength >= event.x) {
       if (_hovered != newHovered) {
         _hovered = newHovered;
         _index = _hovered;
