@@ -4,7 +4,7 @@ import 'font_style.dart';
 class TextComponentStyle {
   AnsiColorType? color;
   AnsiColorType? bgColor;
-  final Set<FontStyle> _fontStyles = {};
+  Set<FontStyle> styles = {};
 
   int _paddingLeft = 0;
   int _paddingRight = 0;
@@ -27,22 +27,22 @@ class TextComponentStyle {
   }
 
   TextComponentStyle bold() {
-    _fontStyles.add(FontStyle.Bold);
+    styles.add(FontStyle.Bold);
     return this;
   }
 
   TextComponentStyle italic() {
-    _fontStyles.add(FontStyle.Italic);
+    styles.add(FontStyle.Italic);
     return this;
   }
 
   TextComponentStyle underline() {
-    _fontStyles.add(FontStyle.Underline);
+    styles.add(FontStyle.Underline);
     return this;
   }
 
   TextComponentStyle strikethrough() {
-    _fontStyles.add(FontStyle.Strikethrough);
+    styles.add(FontStyle.Strikethrough);
     return this;
   }
 
@@ -109,7 +109,7 @@ class TextComponentStyle {
     final codes = [
       if (color != null) color!.fg,
       if (bgColor != null) bgColor!.bg,
-      for (var style in _fontStyles) style.code,
+      for (var style in styles) style.code,
     ].join(";");
 
     final paddingCode = [

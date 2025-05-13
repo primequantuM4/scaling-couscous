@@ -41,4 +41,14 @@ class ColorRGB implements AnsiColorType {
 
   @override
   String get bg => '48;2;$r;$g;$b';
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is ColorRGB && r == other.r && g == other.g && b == other.b;
+  }
+
+  @override
+  int get hashCode => Object.hash(r, g, b);
 }
+
