@@ -87,6 +87,7 @@ class TextComponentStyle {
   }
 
   List<String> _verticalPadding(String codes, int maxWidth, int paddingValue) {
+    if (codes.isEmpty) return [];
     final List<String> padding = [];
     for (int i = 0; i < paddingValue; i++) {
       final String paddingContent =
@@ -99,10 +100,11 @@ class TextComponentStyle {
   }
 
   String _horizontalPadding(String codes, int paddingValue) {
-    final paddingContent = ' ' * paddingValue;
-    final String padding = '\x1B[${codes}m$paddingContent\x1B[0m';
+      if (codes.isEmpty) return '';
+      final paddingContent = ' ' * paddingValue;
+      final String padding = '\x1B[${codes}m$paddingContent\x1B[0m';
 
-    return padding;
+      return padding;
   }
 
   String render(String text) {
@@ -123,10 +125,11 @@ class TextComponentStyle {
         lines.fold(0, (max, line) => line.length > max ? line.length : max);
 
     final paddedLines = lines.map((line) {
-      final leftPadding = _horizontalPadding(paddingCode, _paddingLeft);
-      final rightPadding = _horizontalPadding(paddingCode, _paddingRight);
-      return '$leftPadding\x1B[${codes}m$line\x1B[0m$rightPadding';
-    }).toList();
+            if (line.isEmpty) return '';
+            final leftPadding = _horizontalPadding(paddingCode, _paddingLeft);
+            final rightPadding = _horizontalPadding(paddingCode, _paddingRight);
+            return '$leftPadding\x1B[${codes}m$line\x1B[0m$rightPadding';
+        }).toList();
 
     final List<String> topPadding =
         _verticalPadding(paddingCode, maxWidth, _paddingTop);

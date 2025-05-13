@@ -50,7 +50,9 @@ class CanvasBuffer {
     }
 
     bool _sameStyle(BufferCell cell, BufferCell lastCell) {
-        return cell == lastCell;
+        return cell.fg == lastCell.fg && 
+        cell.bg == lastCell.bg &&
+        cell.styles == lastCell.styles;
     }
 
     String _ansiCode(BufferCell cell) {
@@ -62,9 +64,31 @@ class CanvasBuffer {
         return style.render('');
     }
 
-    // for testing purposes
+    // ========== FOR TESTING PURPOSES ==========
+
     List<List<BufferCell>> getDrawnCanvas() {
         return _screenBuffer;
+    }
+
+    List<String> getRenderedString () {
+        List<String> renderedString = [];
+
+        for (var row in _screenBuffer) {
+            final buffer = StringBuffer();
+            BufferCell? lastCell;
+
+            for (final cell in row) {
+                if (lastCell == null || !_sameStyle(cell, lastCell)) {
+                    if (lastCell == null) buffer.write('\x1B[0m');
+                    buffer.write(_ansiCode(cell));
+                    lastCell = cell;
+                }
+                buffer.write(cell.char);
+            }
+            buffer.write('\x1B[0m');
+            renderedString.add(buffer.toString());
+        }
+        return renderedString;
     }
 }
 
