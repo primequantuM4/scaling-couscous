@@ -86,64 +86,19 @@ class TextComponentStyle {
     return this;
   }
 
-  List<String> _verticalPadding(String codes, int maxWidth, int paddingValue) {
-    if (codes.isEmpty) return [];
-    final List<String> padding = [];
-    for (int i = 0; i < paddingValue; i++) {
-      final String paddingContent =
-          ' ' * _paddingLeft + ' ' * maxWidth + ' ' * _paddingRight;
-      final String ansiPadding = '\x1B[${codes}m$paddingContent\x1B[0m';
-      padding.add(ansiPadding);
-    }
+  int get horizontalPadding => _paddingLeft + _paddingRight;
+  int get verticalPadding => _paddingTop + _paddingBottom;
+  int get horizontalMargin => _marginLeft + _marginRight;
+  int get verticalMargin => _marginTop + _marginBottom;
 
-    return padding;
-  }
+  int get leftPadding => _paddingLeft;
+  int get rightPadding => _paddingRight;
+  int get topPadding => _paddingTop;
+  int get bottomPadding => _paddingBottom;
 
-  String _horizontalPadding(String codes, int paddingValue) {
-      if (codes.isEmpty) return '';
-      final paddingContent = ' ' * paddingValue;
-      final String padding = '\x1B[${codes}m$paddingContent\x1B[0m';
 
-      return padding;
-  }
-
-  String render(String text) {
-    final codes = [
-      if (color != null) color!.fg,
-      if (bgColor != null) bgColor!.bg,
-      for (var style in styles) style.code,
-    ].join(";");
-
-    final paddingCode = [
-      if (color != null) color!.fg,
-      if (bgColor != null) bgColor!.bg,
-    ].join(';');
-
-    final lines = text.split('\n');
-
-    final maxWidth =
-        lines.fold(0, (max, line) => line.length > max ? line.length : max);
-
-    final paddedLines = lines.map((line) {
-            if (line.isEmpty) return '';
-            final leftPadding = _horizontalPadding(paddingCode, _paddingLeft);
-            final rightPadding = _horizontalPadding(paddingCode, _paddingRight);
-            return '$leftPadding\x1B[${codes}m$line\x1B[0m$rightPadding';
-        }).toList();
-
-    final List<String> topPadding =
-        _verticalPadding(paddingCode, maxWidth, _paddingTop);
-    final List<String> bottomPadding =
-        _verticalPadding(paddingCode, maxWidth, _paddingBottom);
-
-    final renderedValue = [...topPadding, ...paddedLines, ...bottomPadding];
-    final val = renderedValue.join('\n');
-
-    final String render = ('\n' * _marginTop) +
-        (' ' * _marginLeft) +
-        val +
-        (' ' * _marginRight) +
-        ('\n' * _marginBottom);
-    return render;
-  }
+  int get leftMargin => _marginLeft;
+  int get rightMargin => _marginRight;
+  int get topMargin => _marginTop;
+  int get bottomMargin => _marginBottom;
 }
