@@ -48,12 +48,13 @@ class TextfieldComponent extends InputHandler implements InteractableComponent {
     if (value.isEmpty && placeHolder != null && focused) {
       final TextComponentStyle colorStyle =
           TextComponentStyle().foreground(ColorRGB(128, 128, 128));
-      styledValue = colorStyle.render(placeHolder!);
+      // styledValue = colorStyle.render(placeHolder!);
     } else {
-      styledValue = textStyle.render(value);
+      // styledValue = textStyle.render(value);
     }
 
-    return focused ? "> $styledValue" : "  $styledValue";
+    // return focused ? "> $styledValue" : "  $styledValue";
+    return "";
   }
 
   @override

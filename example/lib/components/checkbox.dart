@@ -135,16 +135,16 @@ class Checkbox extends InputHandler implements InteractableComponent {
     final List<String> modifiedItems = [];
 
     for (int i = 0; i < items.length; i++) {
-      final hoveredItem = onHover.render(items[i]);
+      // final hoveredItem = onHover.render(items[i]);
       if (_selected.contains(i)) {
-        final styledItem = onSelect.render(items[i]);
-        modifiedItems.add(
-            _index == i && _listening ? '[.X.]$styledItem' : '[X]$styledItem');
+        // final styledItem = onSelect.render(items[i]);
+        // modifiedItems.add(
+        //     _index == i && _listening ? '[.X.]$styledItem' : '[X]$styledItem');
       } else {
-        final styledItem = textStyle.render(items[i]);
-        modifiedItems.add((_index == i || _hovered == i) && _listening
-            ? '[.]$hoveredItem'
-            : '[]$styledItem');
+        // final styledItem = textStyle.render(items[i]);
+        // modifiedItems.add((_index == i || _hovered == i) && _listening
+        //     ? '[.]$hoveredItem'
+        //     : '[]$styledItem');
       }
     }
 

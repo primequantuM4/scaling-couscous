@@ -25,7 +25,7 @@ class Spinner {
     _timer = Timer.periodic(interval, (_) {
       final TextComponentStyle frameStyle =
           TextComponentStyle().foreground(color);
-      stdout.write('\r${frameStyle.render(frames[_index])} $message');
+      // stdout.write('\r${frameStyle.render(frames[_index])} $message');
       _index = (_index + 1) % frames.length;
     });
   }

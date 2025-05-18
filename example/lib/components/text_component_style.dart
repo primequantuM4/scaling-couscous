@@ -86,6 +86,17 @@ class TextComponentStyle {
     return this;
   }
 
+  String getStyleAnsi() {
+      final codes = [
+        if (color != null) color!.fg,
+        if (bgColor != null) bgColor!.bg,
+        for (var style in styles) style.code
+      ].join(';');
+
+      return codes;
+  }
+    
+
   int get horizontalPadding => _paddingLeft + _paddingRight;
   int get verticalPadding => _paddingTop + _paddingBottom;
   int get horizontalMargin => _marginLeft + _marginRight;
