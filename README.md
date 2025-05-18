@@ -1,4 +1,5 @@
 # Dart TUI Framework
+https://github.com/user-attachments/assets/4c0b77b1-cd0c-4e80-9fbc-40f74a428e2e
 
 ## Project Overview
 
@@ -31,7 +32,10 @@ cd example/example
 dart run example.dart
 ```
 
-or you can run your own project using
+or you can run you
+
+
+r own project using
 ```bash
 dart run <your_file_name>.dart
 ```
