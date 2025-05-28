@@ -32,8 +32,8 @@ class CanvasBuffer {
     if (originalX != -1 && originalY != -1) return;
 
     InputManager().getCursorPosition((x, y) {
-      originalX = 0;
-      originalY = 50;
+      originalX = x + 1;
+      originalY = y + 1;
     });
   }
 
@@ -89,49 +89,45 @@ class CanvasBuffer {
   }
 
   void flushArea(Rect area) {
+        final int renderX = isFullscreen ? 1 : originalX;
+        final int renderY = isFullscreen ? 1 : originalY;
+
+        String cursorPosition = '\x1B[$renderY;${renderX}H';
+        stdout.write(cursorPosition);
     for (int y = area.y; y < area.y + area.height; y++) {
       if (y > _screenBuffer.length) break;
       for (int x = area.x; x < area.x + area.width; x++) {
         if (x > _screenBuffer[0].length) break;
 
-        final int renderX = isFullscreen ? 0 : x;
-        final int renderY = isFullscreen ? y : 2 + y;
-
-        String cursorPosition = '\x1B[$renderY;${renderX}H';
-        stdout.write(cursorPosition);
-        stdout.write('                                                                                          $renderY,$renderX');
+        stdout.write(' ');
       }
     }
   }
 
   void render() {
-stdout.write('\x1B[2J'); // Clear screen
-stdout.write('\x1B[1;1H--- Top of screen ---\n');
 
-    for (int y = 0; y < _screenBuffer.length; y++) {
-      final row = _screenBuffer[y];
-      final buffer = StringBuffer();
-      BufferCell? lastCell;
+      final renderY = isFullscreen ? 1 : originalY;
+      final renderX = isFullscreen ? 1 : originalX;
 
-      final renderY = isFullscreen ? y : y + 10;
-      final renderX = isFullscreen ? 0 : originalX;
+      stdout.write('\x1B[$renderY;${renderX}H');
+      for (int y = 0; y < _screenBuffer.length; y++) {
+          final row = _screenBuffer[y];
+          final buffer = StringBuffer();
+          BufferCell? lastCell;
 
-      buffer.write('\x1B[$renderY;${renderX}f');
-
-      for (final cell in row) {
-        if (lastCell == null || !_sameStyle(cell, lastCell)) {
-          if (lastCell == null || !_sameStyle(cell, lastCell)) {
-            buffer.write('\x1B[0');
+          for (final cell in row) {
+              if (lastCell == null || !_sameStyle(cell, lastCell)) {
+                  buffer.write('\x1B[0');
+                  buffer.write(_ansiCode(cell));
+                  lastCell = cell;
+              }
+              buffer.write(cell.char);
           }
-          buffer.write(_ansiCode(cell));
-          lastCell = cell;
-        }
-        buffer.write(cell.char);
-      }
 
-      buffer.write('\x1B[0m');
-      stdout.write(buffer.toString());
-    }
+          buffer.write('\x1B[0m');
+          buffer.write('\n');
+          stdout.write(buffer.toString());
+      }
   }
 
   bool _sameStyle(BufferCell cell, BufferCell lastCell) {

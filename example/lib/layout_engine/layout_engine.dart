@@ -92,9 +92,9 @@ class LayoutEngine {
       child.setBounds(childBounds);
 
       if (direction == Axis.vertical) {
-        cursorY += size.height;
+        cursorY += size.height + childGap;
       } else {
-        cursorX += size.width;
+        cursorX += size.width + childGap;
       }
     }
 

@@ -66,6 +66,7 @@ class TextfieldComponent extends FocusableComponent {
       }
     } else {
       value += input;
+      print('value $value');
     }
   }
 

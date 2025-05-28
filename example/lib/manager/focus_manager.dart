@@ -2,17 +2,19 @@ import 'package:example/core/focusable_component.dart';
 
 class FocusManager {
   final List<FocusableComponent> components = [];
-  int currentIndex = 0;
+  int currentIndex = -1;
 
   void register(FocusableComponent c) {
     components.add(c);
-
-    if (components.length == 1) {
-      components[0].isFocused = true;
-    }
   }
 
   void handleTab(bool shiftPressed) {
+    if (currentIndex == -1) {
+      currentIndex = shiftPressed ? components.length - 1 : 0;
+      components[currentIndex].focus();
+
+      return;
+    }
     components[currentIndex].blur();
 
     if (shiftPressed) {

@@ -28,6 +28,8 @@ abstract class FocusableComponent extends Component implements InputHandler {
     canvas.clearArea(getBounds());
     canvas.flushArea(getBounds());
 
+    render(canvas, getBounds());
+
     canvas.render();
     return;
   }
