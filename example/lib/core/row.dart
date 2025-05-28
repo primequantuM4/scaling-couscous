@@ -44,4 +44,16 @@ class Row extends Component {
       item.component.render(buffer, item.rect);
     }
   }
+
+  @override
+  int fitHeight() {
+    // TODO: implement fitHeight
+    throw UnimplementedError();
+  }
+
+  @override
+  int fitWidth() {
+    // TODO: implement fitWidth
+    throw UnimplementedError();
+  }
 }

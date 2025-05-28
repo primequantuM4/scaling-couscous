@@ -2,13 +2,19 @@ import 'dart:io';
 
 import 'package:example/components/colors.dart';
 import 'package:example/components/font_style.dart';
+import 'package:example/components/input_manager.dart';
 import 'package:example/components/text_component_style.dart';
 import 'package:example/core/buffer_cell.dart';
+import 'package:example/core/rect.dart';
 
 class CanvasBuffer {
   final int width;
   final int height;
 
+  int originalX = -1;
+  int originalY = -1;
+
+  bool isFullscreen = false;
   final List<List<BufferCell>> _screenBuffer;
 
   CanvasBuffer({required this.width, required this.height})
@@ -18,7 +24,18 @@ class CanvasBuffer {
             width,
             BufferCell(char: ' '),
           ),
-        );
+        ) {
+          getTerminalOffset();
+      }
+
+  void getTerminalOffset() {
+    if (originalX != -1 && originalY != -1) return;
+
+    InputManager().getCursorPosition((x, y) {
+      originalX = 0;
+      originalY = 50;
+    });
+  }
 
   void drawChar(
     int x,
@@ -43,10 +60,63 @@ class CanvasBuffer {
     }
   }
 
-  void render() {
+  void clear() {
     for (var row in _screenBuffer) {
+      for (final cell in row) {
+        cell.clear();
+      }
+    }
+
+    stdout.write('\x1B[2J');
+    stdout.write('\x1B[H');
+  }
+
+  void clearArea(Rect area) {
+/*
+          \x1B[2J -> clears entire screen 
+          \x1B[k -> clear from cursor to end of line
+          \x1B[1k -> clear from beginning to cursor
+          \x1B[2k -> clear entire line
+          \x1B[n;mH or \x1B[n;mf -> move cursor to row n, col m
+*/
+    for (int y = area.y; y < area.y + area.height; y++) {
+      if (y >= _screenBuffer.length) break;
+      for (int x = area.x; x < area.x + area.width; x++) {
+        if (x >= _screenBuffer[0].length) break;
+        _screenBuffer[y][x].clear();
+      }
+    }
+  }
+
+  void flushArea(Rect area) {
+    for (int y = area.y; y < area.y + area.height; y++) {
+      if (y > _screenBuffer.length) break;
+      for (int x = area.x; x < area.x + area.width; x++) {
+        if (x > _screenBuffer[0].length) break;
+
+        final int renderX = isFullscreen ? 0 : x;
+        final int renderY = isFullscreen ? y : 2 + y;
+
+        String cursorPosition = '\x1B[$renderY;${renderX}H';
+        stdout.write(cursorPosition);
+        stdout.write('                                                                                          $renderY,$renderX');
+      }
+    }
+  }
+
+  void render() {
+stdout.write('\x1B[2J'); // Clear screen
+stdout.write('\x1B[1;1H--- Top of screen ---\n');
+
+    for (int y = 0; y < _screenBuffer.length; y++) {
+      final row = _screenBuffer[y];
       final buffer = StringBuffer();
       BufferCell? lastCell;
+
+      final renderY = isFullscreen ? y : y + 10;
+      final renderX = isFullscreen ? 0 : originalX;
+
+      buffer.write('\x1B[$renderY;${renderX}f');
 
       for (final cell in row) {
         if (lastCell == null || !_sameStyle(cell, lastCell)) {
@@ -60,7 +130,6 @@ class CanvasBuffer {
       }
 
       buffer.write('\x1B[0m');
-      buffer.write('\n');
       stdout.write(buffer.toString());
     }
   }

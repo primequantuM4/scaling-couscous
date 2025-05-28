@@ -6,6 +6,7 @@ import 'package:example/components/text_component_style.dart';
 import 'package:example/core/axis.dart';
 import 'package:example/core/canvas_buffer.dart';
 import 'package:example/core/component.dart';
+import 'package:example/core/focusable_component.dart';
 import 'package:example/core/position.dart';
 import 'package:example/core/rect.dart';
 import 'package:example/core/row.dart';
@@ -49,12 +50,28 @@ class App extends Component {
 
     final positionedItems = engine.compute();
 
-    for (final item in positionedItems) {
-      item.component.render(
+    for (var item in positionedItems) {
+      final component = item.component;
+      if (component is FocusableComponent) {
+        component.attachCanvas(buffer);
+      }
+      component.render(
         buffer,
         item.rect,
       );
     }
+  }
+
+  @override
+  int fitHeight() {
+    // TODO: implement fitHeight
+    throw UnimplementedError();
+  }
+
+  @override
+  int fitWidth() {
+    // TODO: implement fitWidth
+    throw UnimplementedError();
   }
 }
 
@@ -83,39 +100,8 @@ extension AppRunner on App {
 
 void main() {
   App(children: [
-    Row(
-      children: [
-        TextComponent(
-          'Water',
-          style: TextComponentStyle()
-              .foreground(ColorRGB(255, 255, 255))
-              .paddingTop(2)
-              .paddingLeft(2)
-              .paddingRight(2)
-              .paddingBottom(2)
-              .italic()
-              .background(ColorRGB(51, 153, 255)),
-        ),
-        TextComponent(
-          '',
-          style: TextComponentStyle(),
-        ),
-        TextComponent(
-          'Fire',
-          style: TextComponentStyle()
-              .foreground(ColorRGB(255, 255, 255))
-              .paddingTop(2)
-              .paddingLeft(2)
-              .paddingRight(2)
-              .paddingBottom(2)
-              .marginLeft(2)
-              .underline()
-              .background(ColorRGB(255, 68, 34)),
-        )
-      ],
-    ),
     TextComponent(
-      'Ice',
+      'Water',
       style: TextComponentStyle()
           .foreground(ColorRGB(255, 255, 255))
           .paddingTop(2)
@@ -123,21 +109,49 @@ void main() {
           .paddingRight(2)
           .paddingBottom(2)
           .italic()
-          .background(ColorRGB(102, 204, 255)),
+          .background(ColorRGB(51, 153, 255)),
     ),
     TextComponent(
       '',
       style: TextComponentStyle(),
     ),
     TextComponent(
-      'Ghost',
-      position: Position(positionType: PositionType.absolute, x: 9, y: 5),
+      'Fire',
       style: TextComponentStyle()
           .foreground(ColorRGB(255, 255, 255))
+          .paddingTop(2)
           .paddingLeft(2)
-          .paddingRight(2)
+          .paddingRight(10)
+          .paddingBottom(2)
+          .marginLeft(10)
           .underline()
-          .background(ColorRGB(102, 102, 182)),
+          .background(ColorRGB(255, 68, 34)),
     ),
+    Row(children: [
+      TextComponent(
+        'Ice',
+        style: TextComponentStyle()
+            .foreground(ColorRGB(255, 255, 255))
+            .paddingTop(2)
+            .paddingLeft(2)
+            .paddingRight(2)
+            .paddingBottom(2)
+            .italic()
+            .background(ColorRGB(102, 204, 255)),
+      ),
+      TextComponent(
+        '',
+        style: TextComponentStyle(),
+      ),
+      TextComponent(
+        'Ghost',
+        style: TextComponentStyle()
+            .foreground(ColorRGB(255, 255, 255))
+            .paddingLeft(2)
+            .paddingRight(2)
+            .underline()
+            .background(ColorRGB(102, 102, 182)),
+      ),
+    ])
   ]).run();
 }

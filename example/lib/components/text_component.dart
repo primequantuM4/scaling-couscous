@@ -64,4 +64,15 @@ class TextComponent extends Component {
       buffer.drawAt(leftX, y + i, ' ' * totalWidth, style);
     }
   }
+
+  @override
+  int fitHeight() {
+    final totalLines = text.split('\n').length;
+    return style.topPadding + style.bottomPadding + totalLines;
+  }
+
+  @override
+  int fitWidth() {
+    return style.leftPadding + style.rightPadding + text.length;
+  }
 }

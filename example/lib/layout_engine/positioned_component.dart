@@ -2,7 +2,7 @@ import 'package:example/core/component.dart';
 import 'package:example/core/rect.dart';
 
 class PositionedComponent {
-  final Component component;
+  Component component;
   final Rect rect;
 
   PositionedComponent({

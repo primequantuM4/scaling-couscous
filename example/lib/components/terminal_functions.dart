@@ -105,20 +105,3 @@ class _TerminalInputHandler extends InputHandler {
     _commandBuffer.clear();
   }
 }
-
-// testing
-void main() {
-  try {
-    print("Terminal Width: ${Terminal.getWidth()}");
-    print("Terminal Height: ${Terminal.getHeight()}");
-
-    print("Entering fullscreen mode...");
-
-    Terminal.enterFullscreen();
-    final textField = TextfieldComponent(
-        textStyle: TextComponentStyle().foreground(Colors.yellow));
-    textField.focused = true;
-  } catch (e) {
-    print("Error: ${e.toString()}");
-  }
-}

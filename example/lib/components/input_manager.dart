@@ -2,13 +2,16 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'package:example/components/mouse_event.dart';
+import 'package:example/manager/focus_manager.dart';
 import 'package:ffi/ffi.dart';
 import 'package:win32/win32.dart';
 import 'input_handler.dart';
 
 class InputManager {
   static final InputManager _instance = InputManager._internal();
+  final FocusManager focusManager = FocusManager();
   final List<InputHandler> _activeHandlers = [];
+  final List<int> _cursorInputBuffer = [];
   final List<int> _inputBuffer = [];
   InputHandler? _currentHandler;
   bool _inCommandMode = false;
@@ -121,6 +124,25 @@ class InputManager {
     _updateCurrentHandler();
   }
 
+  void handleRawInput(String input) {
+    final isTab = input == '\t'; // ASCII 9
+    final isShiftTab =
+        input == '\x1B[Z'; // ESC [ Z for shift-tab on some terminals
+
+    if (isTab || isShiftTab) {
+      focusManager.handleTab(isShiftTab);
+      return;
+    }
+
+    // Otherwise, delegate input to current focused component
+    for (final comp in focusManager.components) {
+      if (comp.isFocused) {
+        comp.handleInput(input);
+        break;
+      }
+    }
+  }
+
   void stop() {
     final handlersCopy = List.of(_activeHandlers);
     for (var handler in handlersCopy) {
@@ -145,26 +167,33 @@ class InputManager {
   void _handleInput(List<int> data) {
     if (_isInputPaused) return;
 
-    String input = String.fromCharCodes(data);
+    if (_expectingCursorResponse) {
+      _cursorInputBuffer.addAll(data);
 
-    if (_expectingCursorResponse &&
-        input.contains('\x1B[') &&
-        input.endsWith('R')) {
-      _expectingCursorResponse = false;
+      String input = String.fromCharCodes(_cursorInputBuffer);
+
+      // Look for full response like ESC[55;1R
       RegExp regex = RegExp(r'\x1B\[(\d+);(\d+)R');
       Match? match = regex.firstMatch(input);
 
       if (match != null) {
+        _expectingCursorResponse = false;
+        _cursorInputBuffer.clear();
+
         int row = int.parse(match.group(1)!);
         int col = int.parse(match.group(2)!);
         _cursorCallback?.call(col - 1, row - 1);
       }
+
       return;
     }
+
     _inputBuffer.addAll(data);
 
     while (_inputBuffer.isNotEmpty) {
-      if (_inputBuffer[0] == 0x1B && _inputBuffer.length >= 3) {
+      if (!_expectingCursorResponse &&
+          _inputBuffer[0] == 0x1B &&
+          _inputBuffer.length >= 3) {
         if (_inputBuffer.length >= 3 &&
             String.fromCharCodes(_inputBuffer).contains('\x1B[<')) {
           _processMouseBuffer();
@@ -199,6 +228,9 @@ class InputManager {
       case 0x44:
         _triggerKey('\x1B[D');
         break;
+      case 0x5A:
+        focusManager.handleTab(true);
+        break;
       default:
         print("Unhandled ANSI sequence: $sequence");
     }
@@ -221,6 +253,9 @@ class InputManager {
       case 0x4D:
         _triggerKey('\x1B[C');
         break;
+      case 0x5A:
+        focusManager.handleTab(true);
+        break;
       default:
         print("Unhandled Windows sequence: $sequence");
     }
@@ -234,6 +269,8 @@ class InputManager {
       _handleCommandMode(input);
     } else if (input == ':') {
       _enterCommandMode();
+    } else if (input == '\t') {
+      focusManager.handleTab(false);
     } else {
       _currentHandler?.handleInput(input);
     }
