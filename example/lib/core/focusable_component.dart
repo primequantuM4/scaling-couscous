@@ -1,45 +1,40 @@
-import 'package:example/components/input_handler.dart';
 import 'package:example/core/canvas_buffer.dart';
 import 'package:example/core/component.dart';
+import 'package:example/core/rect.dart';
 
-abstract class FocusableComponent extends Component implements InputHandler {
+abstract class InteractableComponent extends Component {
   bool isFocused = false;
-  late CanvasBuffer canvas;
-
-  void attachCanvas(CanvasBuffer canvas) {
-    this.canvas = canvas;
-  }
+  bool isHovered = true;
 
   void blur() {
     isFocused = false;
-    stopListening();
     onBlur();
-    canvas.clearArea(getBounds());
-    canvas.flushArea(getBounds());
 
     return;
   }
 
   void focus() {
     isFocused = true;
-    startListening();
     onFocus();
 
-    canvas.clearArea(getBounds());
-    canvas.flushArea(getBounds());
+    return;
+  }
 
-    render(canvas, getBounds());
+  void hover() {
+    isHovered = true;
+    onHover();
 
-    canvas.render();
+    return;
+  }
+
+  void unhover() {
+    isHovered = false;
     return;
   }
 
   void onFocus();
   void onBlur();
+  void onHover();
 
-  void clear();
-  void draw();
-
-  @override
   void handleInput(String input);
 }

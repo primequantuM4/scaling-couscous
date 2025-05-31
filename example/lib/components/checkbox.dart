@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:example/components/mouse_event.dart';
+import 'package:example/events/input_event.dart';
 
 import 'interactable_component.dart';
 import 'input_handler.dart';

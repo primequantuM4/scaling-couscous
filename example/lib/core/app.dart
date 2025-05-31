@@ -1,19 +1,26 @@
 import 'dart:math';
 
 import 'package:example/components/colors.dart';
+import 'package:example/components/input_handler.dart';
 import 'package:example/components/text_component.dart';
 import 'package:example/components/text_component_style.dart';
 import 'package:example/core/axis.dart';
 import 'package:example/core/canvas_buffer.dart';
 import 'package:example/core/component.dart';
-import 'package:example/core/focusable_component.dart';
+import 'package:example/core/interactable_registry.dart';
 import 'package:example/core/position.dart';
 import 'package:example/core/rect.dart';
 import 'package:example/core/row.dart';
 import 'package:example/core/size.dart';
 import 'package:example/layout_engine/layout_engine.dart';
+import 'package:example/manager/command_mode_handler.dart';
+import 'package:example/manager/focus_manager.dart';
+import 'package:example/manager/input_dispatcher.dart';
+import 'package:example/manager/input_manager.dart';
+import 'package:example/renderer/renderer.dart';
 
-class App extends Component {
+class App extends Component with ParentComponent {
+  @override
   final List<Component> children;
   final Axis direction;
 
@@ -52,9 +59,6 @@ class App extends Component {
 
     for (var item in positionedItems) {
       final component = item.component;
-      if (component is FocusableComponent) {
-        component.attachCanvas(buffer);
-      }
       component.render(
         buffer,
         item.rect,
@@ -78,9 +82,31 @@ class App extends Component {
 extension AppRunner on App {
   void run() {
     final terminalWidth = 80;
-    final terminalHeight = 24;
+    final terminalHeight = 44;
 
     final buffer = CanvasBuffer(width: terminalWidth, height: terminalHeight);
+    final Renderer renderer = Renderer(buffer: buffer);
+
+    final InputDispatcher dispatcher = InputDispatcher(renderer: renderer);
+    final FocusManager focusManager = FocusManager();
+    final InteractableRegistry registry = InteractableRegistry();
+
+    registry.registerInteractables(this, focusManager);
+
+    final List<InputHandler> handlers = [
+      focusManager,
+      CommandModeHandler(),
+    ];
+
+    for (var handler in handlers) {
+      dispatcher.registerHandler(handler);
+    }
+    final InputManager inputManager = InputManager(dispatcher: dispatcher);
+
+    inputManager.getCursorPosition((x, y) {
+      buffer.setTerminalOffset(x + 1, y + 1);
+    });
+
     final measuredSize = measure(Size(
       width: terminalWidth,
       height: terminalHeight,

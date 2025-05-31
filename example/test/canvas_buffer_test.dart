@@ -22,7 +22,10 @@ void main() {
     test(
         'After creating and writing on canvas using draw at the buffer should match the expected buffer',
         () {
-      final CanvasBuffer canvasBuffer = CanvasBuffer(width: 3, height: 2);
+      final CanvasBuffer canvasBuffer = CanvasBuffer(
+        width: 3,
+        height: 2,
+      );
       canvasBuffer.drawAt(0, 0, 'Hey', TextComponentStyle());
       canvasBuffer.drawAt(0, 1, 'The', TextComponentStyle());
 
@@ -34,7 +37,10 @@ void main() {
   test(
       'Some with styling and others with different styling should render the expected output',
       () {
-    final CanvasBuffer canvasBuffer = CanvasBuffer(width: 3, height: 2);
+    final CanvasBuffer canvasBuffer = CanvasBuffer(
+      width: 3,
+      height: 2,
+    );
     canvasBuffer.drawAt(
         0,
         0,
@@ -68,7 +74,10 @@ void main() {
   });
 
   test('Extra empty space should not interupt the render string', () {
-    final CanvasBuffer canvasBuffer = CanvasBuffer(width: 5, height: 3);
+    final CanvasBuffer canvasBuffer = CanvasBuffer(
+      width: 5,
+      height: 3,
+    );
     canvasBuffer.drawAt(
       0,
       0,
@@ -105,7 +114,10 @@ void main() {
 
   test('Two text components with full padding can render next to each other',
       () {
-    final CanvasBuffer canvasBuffer = CanvasBuffer(width: 20, height: 20);
+    final CanvasBuffer canvasBuffer = CanvasBuffer(
+      width: 20,
+      height: 20,
+    );
     final TextComponent firstText = TextComponent(
       "Fire",
       style: TextComponentStyle()

@@ -17,10 +17,15 @@ abstract class Component {
     return _bounds!;
   }
 
+  void markDirty() {}
   Component({this.position});
 
   Size measure(Size maxSize);
   int fitWidth();
   int fitHeight();
   void render(CanvasBuffer buffer, Rect bounds);
+}
+
+mixin ParentComponent on Component {
+  List<Component> get children;
 }

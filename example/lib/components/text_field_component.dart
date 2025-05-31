@@ -1,6 +1,3 @@
-import 'dart:io';
-import 'package:example/components/input_manager.dart';
-import 'package:example/components/mouse_event.dart';
 import 'package:example/core/canvas_buffer.dart';
 import 'package:example/core/focusable_component.dart';
 import 'package:example/core/rect.dart';
@@ -9,7 +6,7 @@ import 'package:example/core/size.dart';
 import 'colors.dart';
 import 'text_component_style.dart';
 
-class TextfieldComponent extends FocusableComponent {
+class TextfieldComponent extends InteractableComponent {
   String value = "";
   TextComponentStyle textStyle;
   final Function(String)? onSubmitted;
@@ -22,28 +19,16 @@ class TextfieldComponent extends FocusableComponent {
   }) : textStyle = textStyle ?? TextComponentStyle();
 
   @override
-  void clear() {
-    stdout.write("\x1B[2K");
-    stdout.write("\r");
-  }
-
-  @override
-  void draw() {}
-
-  @override
   void render(CanvasBuffer buffer, Rect bounds) async {
     int x = bounds.x;
     int y = bounds.y;
 
-    final TextComponentStyle colorStyle =
-        TextComponentStyle().foreground(ColorRGB(23, 233, 210));
-
-    final String text = isFocused ? "|> " : "   ";
+    final String text = (isFocused) ? "|> " : "   ";
     final String display = (value.isEmpty && placeHolder != null)
         ? "$text$placeHolder"
         : "$text$value";
 
-    buffer.drawAt(x, y, display, colorStyle);
+    buffer.drawAt(x, y, display, textStyle);
   }
 
   @override
@@ -55,7 +40,6 @@ class TextfieldComponent extends FocusableComponent {
     if (arrowKeys.contains(input)) return;
 
     if (input == '\r' || input == '\n') {
-      final submittedValue = value;
       isFocused = false;
       value = "";
       blur();
@@ -66,13 +50,9 @@ class TextfieldComponent extends FocusableComponent {
       }
     } else {
       value += input;
-      print('value $value');
     }
-  }
 
-  @override
-  void getCursorPosition(void Function(int x, int y) callback) {
-    // TODO: implement getCursorPosition
+    return;
   }
 
   @override
@@ -95,21 +75,6 @@ class TextfieldComponent extends FocusableComponent {
   }
 
   @override
-  set onMouseEvent(Function(MouseEvent p1) callback) {
-    // TODO: implement onMouseEvent
-  }
-
-  @override
-  void startListening() {
-    InputManager().registerHandler(this);
-  }
-
-  @override
-  void stopListening() {
-    InputManager().unregisterHandler(this);
-  }
-
-  @override
   int fitHeight() => 1;
 
   @override
@@ -122,7 +87,9 @@ class TextfieldComponent extends FocusableComponent {
   }
 
   @override
-  Rect getArea() {
-    throw UnimplementedError();
+  void onHover() {
+    textStyle = TextComponentStyle()
+        .foreground(Colors.white)
+        .background(ColorRGB(40, 40, 40));
   }
 }
